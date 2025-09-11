@@ -14,7 +14,7 @@
   # main links
 main:
   - title: "develop"
-    url: /categories/backend/
+    url: /backend/
   - title: "Categories"
     url: /categories/
   - title: "Tags"
