@@ -7,3 +7,18 @@ search: false
 
 @import "minimal-mistakes/skins/{{ site.minimal_mistakes_skin | default: 'default' }}"; // skin
 @import "minimal-mistakes"; // main partials
+
+/* Pretendard 적용 */
+body {
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui,
+    Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo',
+    'Noto Sans KR', 'Malgun Gothic', sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Pretendard', sans-serif;
+}
+
+code, pre {
+  font-family: 'Fira Code', monospace;
+}
