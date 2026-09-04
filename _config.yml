@@ -22,7 +22,7 @@ title_separator          : "-"
 subtitle                 : # site tagline that appears below site title in masthead
 name                     : "Yoonji Lee"
 description              : "A blog about programming, technology, and life. ( •̀ ω •́ )y"
-url                      : "https://yooniicode.github.io"
+url                      : "https://yooniicode.site"
 baseurl                  : ""
 repository               : "yooniicode/yooniicode.github.io"
 teaser                   : # path of fallback teaser image, e.g. "/assets/images/500x300.png"
@@ -140,6 +140,9 @@ author:
     - label: "LinkedIn"
       icon: "fab fa-fw fa-linkedin"
       url: "https://www.linkedin.com/in/yooniicode/"
+    - label: "Portfolio"
+      icon: "fas fa-fw fa-briefcase"
+      url: "https://portfolio.yooniicode.site/"
 
 # Site Footer
 footer:
