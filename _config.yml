@@ -231,6 +231,15 @@ kramdown:
 sass:
   sass_dir: _sass
   style: compressed # https://sass-lang.com/documentation/file.SASS_REFERENCE.html#output_style
+  # 테마(minimal-mistakes)가 번들한 susy/breakpoint 라이브러리가 구버전 Sass 문법을 써서
+  # deprecation 경고가 230건씩 쏟아진다. 내가 고칠 수 없는 남의 코드이므로 의존성 경고만 숨긴다.
+  # (assets/css/main.scss 등 내가 직접 쓴 파일의 경고는 그대로 표시됨)
+  quiet_deps: true
+  # main.scss가 테마를 불러올 때 쓰는 @import 문법도 deprecated 상태다.
+  # 후속 문법인 @use 로 바꾸려면 테마가 먼저 대응해야 하므로(현재 미지원) 경고만 끈다.
+  # → Dart Sass 3.0 에서 @import 가 실제로 제거되면 그때 테마 업데이트 필요.
+  silence_deprecations:
+    - import
 
 
 # Outputting
