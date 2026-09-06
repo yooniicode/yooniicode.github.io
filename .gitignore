@@ -30,3 +30,6 @@ codekit-config.json
 .sass-cache
 _asset_bundler_cache
 _site
+
+# Claude Code (세션마다 쌓이는 로컬 권한 설정, 이 PC 전용 절대경로 포함)
+.claude/
