@@ -1,8 +1,10 @@
 ---
 title: "[DB] Database (MySQL)"
 date: 2025-04-14 00:00:00 +0900
-categories: [MySQL]
-tags: []
+categories: [Backend]
+tags: [MySQL, 데이터베이스]
+redirect_from: ["/mysql/DB-Database-(MySQL)/"]
+published: false  # 노션 하위 페이지 목록만 남음 — 내용을 채우면 true 로 되돌릴 것
 ---
 
 - **DB 시스템 개념 정리** (하위 페이지)

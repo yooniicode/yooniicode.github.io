@@ -1,14 +1,17 @@
 ---
 title: "Cloudflare worker를 이용하여 폰트 변경하기"
 date: 2024-08-30 00:00:00 +0900
+assets: 2024-08-30-cloudflare-worker
 categories: [Blog]
-tags: []
+tags: [Cloudflare, 노션, 폰트]
 ---
 
 - 도메인 연결에 이어, 폰트 변경까지 해보도록 하자
 - 구글링 이후, 아무도 이런 글을 쓰지 않았음을 알게 되었다
 ⬇️ 결과물은 다음과 같다! tailored notion을 사용한 것 처럼 바꿔주는 마법의 기술.
-![](https://prod-files-secure.s3.us-west-2.amazonaws.com/ed31bb93-2d4a-497a-8fbc-c75b3e8c1b22/1b922c40-88b9-4dc0-b78c-d282578aff01/image.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=ASIAZI2LB46662Q6M7DY%2F20260904%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20260904T065239Z&X-Amz-Expires=3600&X-Amz-Security-Token=IQoJb3JpZ2luX2VjECYaCXVzLXdlc3QtMiJHMEUCIB5yjrgRAl7wSeLYVKewX08NxaBvs8S67xafgCPXpz7tAiEAxnHMrJ9jLzHoniSwmkG1wEWenek1cqAyQPhJOsL7%2BpYqiAQI7%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FARAAGgw2Mzc0MjMxODM4MDUiDP2zVHR37gmM31WIPyrcA8yAfI%2F8wvjsxrBV8cnZRDwJMCynN2dLdEV%2FP19u5veYyrLQE0Hh%2BUozrIJYCYFUuErvW0gmCG4dTUJZz9v8i1%2BH36pc8FMm1xVxsqR7zBKZgxQoC7jMBK2as170tCuOl%2FEDeLMxGfema%2F1O9yRWhVHs2pIJdqJCmCXq2k7MH4vlnbxAr7TgIbYyNsgkg5Am7aePmF8mK2DKYK77dVQuEQ2MOKWURIVN6hoEKwN5s2bJVogBXsvxDooXY%2FXSC7xbCOo1B6QPggTr8xfY4oxh28Pexykvxbzr7FqhRusTZxRfO1YKg7LfLZMVgAXvDcbkg8C5voIMd8rZOyhORIYonwCPRWXIRD0xGQCBYw7NAPCKNemd5fdgYMbSY9WKmTF5qpWloKBbSyu9bo8LIKNkL3msAtVyokix%2BI1J0HBDjBbAX%2FRV%2BngVstFq5S1P03YxtgVpe1YjOJwsV1PCrpRriPG1YLwwLoXJd3YJVCO1f5tfk2H6FOzK%2BwV3edYXZ9adbb7j56CBJQi5yEcI1QPxNjH3GHKj%2BbCWi6MV28bc3BUfYv6D%2BwrNpNYRqN0SqB410af2cFLXsbKOZfFkT8WwjXgcEIqrWBHQJs0yh8qXvYr4FppV5k%2BsdluEymCVMOqw6dQGOqUBw4%2BgA403FkIHh9JSmlzVO4bhVazotyJZHeOXJShX%2FP1aUAkKDocDG%2BfWrz0SUBjorZJQfRrrsPnF8L3BdJG9svwBtg50kmECqTMz0X%2BS8EE4xNUPz3BL%2FIQOm2TtZw0kkRMWWFoiH%2BXndk%2BnMio8k9G0lBEN%2BR3Uw0tG46JdLsIw5hnkZKjJBfFmVBOnp%2B8q7rxLJBJjTnUP36y0cxGS6YanWoQO&X-Amz-Signature=ae2ed1fde2dd45abd9cc0d4b6cfd0bdcdff0343422b005b5fcb28a2842367b1c&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject)
+{% include post-image.html src="01.png" width="759" height="774"
+   alt="폰트를 바꾼 뒤의 Yoonicode 블로그 노션 페이지"
+   caption="폰트를 적용한 결과 화면" %}
 ---
 ✨ 아래 방식들로 변경할 수 있다. custom script를 활용해서 바꿔보기로 했었다.
 #### 1. Cloudflare의 페이지 규칙(Page Rules) 설정

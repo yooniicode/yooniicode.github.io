@@ -1,8 +1,9 @@
 ---
 title: "TypeScript 기초"
 date: 2025-04-07 00:00:00 +0900
-categories: [FE]
-tags: []
+categories: [Frontend]
+tags: [TypeScript]
+redirect_from: ["/fe/TypeScript-기초/"]
 ---
 
 #### 리액트 프레임워크

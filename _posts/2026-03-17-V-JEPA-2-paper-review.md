@@ -2,7 +2,7 @@
 title: "[V-JEPA 2] paper review"
 date: 2026-03-17 00:00:00 +0900
 categories: [AI]
-tags: []
+tags: [논문리뷰, 딥러닝]
 ---
 
 ## V-JEPA 2: Self-Supervised Video Models Enable Understanding, Prediction and Planning

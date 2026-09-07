@@ -1,8 +1,8 @@
 ---
 title: "RDS & DynamoDB 실습 회고"
 date: 2026-05-01 12:00:00 +0900
-categories: AWS
-tags: [AWS, AWS Cloud Club]
+categories: [AWS]
+tags: [AWS, AWS Cloud Club, RDS, DynamoDB]
 author: yoonji
 layout: single
 published: true

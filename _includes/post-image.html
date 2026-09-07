@@ -1,0 +1,41 @@
+{%- comment -%}
+  포스트별 이미지 헬퍼.
+
+  사용법:
+    {% include post-image.html src="spring-request-flow.png"
+                               alt="요청이 Filter를 지나 Controller로 가는 흐름"
+                               width="2506" height="500"
+                               caption="Web Context와 Spring Context의 경계" %}
+
+  만들어지는 경로:
+    /assets/images/posts/<폴더>/<src>
+
+    <폴더>는 포스트 front matter 의 `assets:` 값을 쓴다.
+    `assets:` 가 없으면 포스트 slug(파일명에서 날짜와 확장자를 뺀 부분)로 대체되는데,
+    한글 제목이면 폴더 이름도 한글이 되어버리므로 `assets:` 를 직접 적는 쪽을 권장한다.
+
+  인자:
+    src     (필수) 폴더 안의 파일 이름
+    alt     (필수) 대체 텍스트. 스크린리더와 이미지 로드 실패 시 보인다
+    width   원본 픽셀 너비  ┐ 둘 다 주면 브라우저가 자리를 미리 잡아
+    height  원본 픽셀 높이  ┘ 이미지 로드 중 레이아웃이 밀리지 않는다 (CLS 방지)
+    caption 그림 아래 설명 (마크다운 사용 가능)
+    class   figure 에 붙일 클래스 — "align-center", "align-left", "half", "third" 등
+    eager   true 면 지연 로딩을 끈다. 첫 화면에 바로 보이는 이미지에만 사용
+    dir     이 이미지 하나만 다른 포스트 폴더에서 가져올 때 폴더 이름을 직접 지정
+{%- endcomment -%}
+
+{%- assign asset_dir = include.dir | default: page.assets | default: page.slug -%}
+{%- capture post_image_path -%}/assets/images/posts/{{ asset_dir }}/{{ include.src }}{%- endcapture -%}
+
+<figure{% if include.class %} class="{{ include.class }}"{% endif %}>
+  <img src="{{ post_image_path | relative_url }}"
+       alt="{{ include.alt | default: '' | escape_once }}"
+       {%- if include.width %} width="{{ include.width }}"{% endif %}
+       {%- if include.height %} height="{{ include.height }}"{% endif %}
+       loading="{% if include.eager %}eager{% else %}lazy{% endif %}"
+       decoding="async">
+  {%- if include.caption -%}
+    <figcaption>{{ include.caption | markdownify | remove: "<p>" | remove: "</p>" }}</figcaption>
+  {%- endif -%}
+</figure>

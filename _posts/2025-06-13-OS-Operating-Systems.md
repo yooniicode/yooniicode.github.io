@@ -1,8 +1,10 @@
 ---
 title: "[OS] Operating Systems"
 date: 2025-06-13 00:00:00 +0900
-categories: [OS]
-tags: []
+categories: [CS]
+tags: [운영체제]
+redirect_from: ["/os/OS-Operating-Systems/"]
+published: false  # 노션 하위 페이지 목록만 남음 — 내용을 채우면 true 로 되돌릴 것
 ---
 
 - **운영체제 기본** (하위 페이지)

@@ -1,8 +1,10 @@
 ---
 title: "[CA] computer algorithm basics"
 date: 2025-04-03 00:00:00 +0900
-categories: [CA]
-tags: []
+categories: [CS]
+tags: [알고리즘]
+redirect_from: ["/ca/CA-computer-algorithm-basics/"]
+published: false  # 노션 하위 페이지 목록만 남음 — 내용을 채우면 true 로 되돌릴 것
 ---
 
 - **[CA] Algorithm** (하위 페이지)
