@@ -33,6 +33,18 @@ $(document).ready(function() {
           if(query.lastIndexOf(" ") != query.length-1){
             q.term(term, {  usePipeline: false, wildcard: lunr.Query.wildcard.TRAILING, boost: 10 })
           }
+          // 한국어는 조사·어미가 붙은 어절 하나가 통째로 토큰이 된다
+          // ("스프링시큐리티를"). 뒤쪽 와일드카드만으로는 앞에서부터 맞는
+          // 경우("스프링")만 걸리므로, 어절 가운데·끝에서 맞는 경우
+          // ("시큐리티")까지 잡으려면 양쪽 와일드카드가 필요하다.
+          // 앞 와일드카드는 색인 전체를 훑지만 글이 수십 편 규모라 부담이 없다.
+          if (term != ""){
+            q.term(term, {
+              usePipeline: false,
+              wildcard: lunr.Query.wildcard.LEADING | lunr.Query.wildcard.TRAILING,
+              boost: 5
+            })
+          }
           if (term != ""){
             q.term(term, {  usePipeline: false, editDistance: 1, boost: 1 })
           }
@@ -70,4 +82,12 @@ $(document).ready(function() {
       resultdiv.append(searchitem);
     }
   });
+
+  // 이 스크립트는 검색을 열 때 비동기로 붙는다(_includes/search/lunr-search-scripts.html).
+  // 로드가 끝나기 전에 이미 몇 글자 쳐 넣었을 수 있으므로, 핸들러를 걸자마자
+  // 현재 입력값으로 한 번 돌려서 결과를 맞춰준다.
+  var $input = $('input#search');
+  if ($input.length && $input.val()) {
+    $input.trigger('keyup');
+  }
 });

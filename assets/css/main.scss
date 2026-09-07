@@ -8,48 +8,693 @@ search: false
 @import "minimal-mistakes/skins/{{ site.minimal_mistakes_skin | default: 'default' }}"; // skin
 @import "minimal-mistakes"; // main partials
 
-/* Pretendard 적용 */
+/* ==========================================================================
+   0. 디자인 토큰
+   ==========================================================================
+   에디토리얼 미니멀 / Read 모드.
+   위계는 '크기' 한 축이 아니라 크기 + 굵기 + 색 세 축으로 나눠서 만든다.
+   색은 테마 팔레트($text-color, $border-color, $link-color …)에서 파생시키므로
+   _config.yml 의 minimal_mistakes_skin 을 바꿔도 같이 따라간다.          */
+
+:root {
+  /* 간격: 4px 베이스. 8만 쓰면 중간 단계가 없어서 리듬을 못 만든다. */
+  --sp-1: 0.25rem;
+  --sp-2: 0.5rem;
+  --sp-3: 0.75rem;
+  --sp-4: 1rem;
+  --sp-5: 1.5rem;
+  --sp-6: 2rem;
+  --sp-7: 3rem;
+  --sp-8: 4rem;
+
+  /* 사이드바와 본문 컬럼 사이 거터. 이 값 하나로 간격이 결정된다.
+     .archive 는 float: inline-end 라 폭을 줄이면 남는 공간이 전부 왼쪽으로
+     몰린다. 그래서 '폭'이 아니라 '간격'을 직접 정하고 폭을 역산한다. */
+  --sidebar-gap: 7rem;
+
+  /* 본문 한 줄 폭. 한글 ~44자 기준. 읽는 폭을 조절하려면 이 값 하나만 바꾸면 된다.
+     (한글은 전각이라 라틴 기준 65~75자 권장치보다 큰 값이 필요하다)
+     em 이 아니라 rem 인 이유: em 이면 폰트가 작은 요소(0.8em 인 목록 발췌문)의
+     max-width 가 같이 줄어들어 블록마다 폭이 달라진다. rem 은 루트 기준이라
+     본문·발췌문·인용문이 모두 같은 물리적 폭으로 정렬된다. */
+  --measure: 44rem;
+
+  /* 본문 폰트 스택. 테마가 $sans-serif 를 직접 박아둔 셀렉터들
+     (.masthead, .archive__item-title, .page__meta, 작성자 프로필)을
+     이 값으로 되돌려서 사이트 전체가 한 서체로 렌더링되게 한다. */
+  --font-sans: 'Pretendard Variable', 'Pretendard', -apple-system,
+    BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI',
+    'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+  --font-mono: 'Fira Code', ui-monospace, SFMono-Regular, Menlo, Consolas,
+    monospace;
+
+  --c-text: #{$text-color};
+  --c-muted: #{$muted-text-color};
+  --c-link: #{$link-color};
+  --c-rule-soft: #{$border-color};
+
+  /* 파생색은 Sass mix() 대신 CSS color-mix() 로 만든다.
+     main.scss 는 루트 스타일시트라 전역 mix() 를 쓰면 Dart Sass 3.0
+     deprecation 경고가 빌드마다 찍힌다(테마 _sass 는 의존성이라 억제됨).
+     각 줄의 첫 선언은 color-mix 미지원 브라우저(2023 이전)용 폴백. */
+
+  /* $border-color 는 #f1f2f3 이라 너무 옅어서 구분선이 사실상 안 보인다. */
+  --c-rule: #e4e4e5;
+  --c-rule: color-mix(in srgb, var(--c-text) 14%, #fff);
+
+  --c-link-faint: #a2c4cf;
+  --c-link-faint: color-mix(in srgb, var(--c-link) 45%, #fff);
+
+  --c-selection: #d1e2e8;
+  --c-selection: color-mix(in srgb, var(--c-link) 22%, #fff);
+}
+
+/* ==========================================================================
+   1. 기준 타이포그래피
+   ========================================================================== */
+
+/* 크기는 body 가 아니라 html 에 건다.
+   테마는 _reset.scss 에서 html 에 16/18/20px 를 브레이크포인트별로 걸고
+   하위 요소를 전부 em 으로 파생시킨다(_variables.scss 의 $type-size-*).
+   body 에 고정 px 를 주면 그 반응형 스케일이 끊겨서, 큰 화면에서
+   여백(rem 기준)만 커지고 본문 글자는 그대로 작게 남는다. */
+html {
+  font-size: 15px;
+
+  @include breakpoint($medium) {
+    font-size: 16px;
+  }
+
+  @include breakpoint($large) {
+    font-size: 17px;
+  }
+
+  /* sticky 네비 높이만큼 앵커 착지점을 내린다.
+     이게 없으면 목차/앵커 링크로 점프했을 때 제목이 네비 뒤로 숨는다. */
+  scroll-padding-top: 4.5rem;
+}
+
 body {
-  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui,
-    Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo',
-    'Noto Sans KR', 'Malgun Gothic', sans-serif;
+  font-family: var(--font-sans);
+  /* 한글은 라틴보다 글자 높이가 커서 1.4 면 줄이 붙는다. */
+  line-height: 1.75;
 
-  font-size: 15px;  
-  line-height: 1.4; 
+  /* 한글은 어절(띄어쓰기) 단위로 끊어야 읽힌다.
+     기본값(normal)이면 '커스텀 필터부터' 가 '필터' / '부터' 로 쪼개진다.
+     대신 긴 URL·식별자는 keep-all 로 넘칠 수 있으므로 break-word 로 받아준다. */
+  word-break: keep-all;
+  overflow-wrap: break-word;
 }
 
-h1, h2, h3, h4, h5, h6 {
-  font-family: 'Pretendard', sans-serif;
+/* 코드·식별자는 어절 규칙을 적용하지 않는다 */
+code,
+pre,
+kbd,
+samp {
+  word-break: normal;
 }
 
-code, pre {
-  font-family: 'Fira Code', monospace;
+/* body 가 flex 컬럼이라 .initial-content 는 flex item 이고, flex item 의
+   기본 min-width:auto 는 자식을 min-content 아래로 못 줄이게 막는다.
+   지금은 greedy-nav 가 JS 로 링크를 접어줘서 문제가 드러나지 않지만,
+   JS 가 늦거나 실패하면 접히지 않은 네비의 min-content 폭이 이 컨테이너를
+   밀어내고 #main{max-width:100%} 가 그대로 따라간다. 방어용으로 끊어둔다. */
+.initial-content,
+.search-content {
+  min-width: 0;
 }
 
-/* ===== 상단 네비게이션 바 글래스모피즘 ===== */
-/* 테마는 그대로 두고, 고정된 네비 바 뒤로 본문이 흐릿하게 지나가게 함 */
-.masthead {
-  position: sticky;
-  top: 0;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+/* 테마가 시스템 폰트 스택($sans-serif)을 직접 지정해 둔 자리들 */
+.masthead__inner-wrap,
+.archive__item-title,
+.page__meta,
+.page__lead,
+.author__urls-wrapper,
+.sidebar .author__name,
+.btn,
+.pagination {
+  font-family: var(--font-sans);
 }
 
-.greedy-nav {
-  /* 반투명 흰 배경 (불투명 $background-color 덮어쓰기) */
-  background: rgba(255, 255, 255, 0.68);
-  -webkit-backdrop-filter: saturate(180%) blur(14px);
-  backdrop-filter: saturate(180%) blur(14px);
-  transition: background 0.2s ease;
+code,
+pre,
+kbd,
+samp {
+  font-family: var(--font-mono);
+}
 
-  /* 하위 숨김 메뉴(더보기 드롭다운)도 유리 톤 유지 */
-  .hidden-links {
-    background: rgba(255, 255, 255, 0.85);
-    -webkit-backdrop-filter: saturate(180%) blur(14px);
-    backdrop-filter: saturate(180%) blur(14px);
+/* ==========================================================================
+   2. 제목 위계
+   ==========================================================================
+   테마 기본값은 h3(1.125em) → h6(1em) 이 2px 안에 몰려 있고 전부 bold 라
+   네 단계가 사실상 같아 보인다. 크기 간격을 벌리고 굵기·색을 2·3축으로 쓴다. */
+
+.page__content {
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-sans);
+    text-wrap: balance;      /* 제목 끝줄에 한 단어만 남는 것 방지 */
+    letter-spacing: -0.01em;
+    scroll-margin-top: 4.5rem;
+  }
+
+  /* 여백 리듬: 단계가 낮아질수록 위 여백도 줄어든다.
+     테마는 전 단계가 2em/0.5em 로 동일해서 h2 와 h4 가 같은 무게로 읽혔다.
+     어느 단계든 '위 여백 > 아래 여백' 은 유지 — 제목은 아래 본문에 붙어야 한다. */
+  h1 {
+    margin: var(--sp-8) 0 var(--sp-4);
+    font-size: 1.75em;
+    font-weight: 700;
+    line-height: 1.3;
+  }
+
+  h2 {
+    margin: var(--sp-7) 0 var(--sp-4);
+    font-size: 1.45em;
+    font-weight: 700;
+    line-height: 1.35;
+    /* 테마의 border-bottom 제거.
+       h2(1.45em/700)와 h3(1.2em/600)의 크기·굵기 차가 충분히 벌어졌으므로
+       구분선은 중복된 잉크다. */
+    padding-bottom: 0;
+    border-bottom: 0;
+  }
+
+  h3 {
+    margin: var(--sp-6) 0 var(--sp-3);
+    font-size: 1.2em;
+    font-weight: 600;
+    line-height: 1.4;
+  }
+
+  h4 {
+    margin: var(--sp-5) 0 var(--sp-2);
+    font-size: 1.05em;
+    font-weight: 600;
+    line-height: 1.45;
+  }
+
+  /* h5·h6 는 크기로 더 못 내려간다(본문보다 작아지면 제목으로 안 읽힌다).
+     색을 죽여서 단계를 만든다. */
+  h5,
+  h6 {
+    margin: var(--sp-5) 0 var(--sp-2);
+    font-size: 1em;
+    font-weight: 600;
+    line-height: 1.45;
+    color: var(--c-muted);
+  }
+
+  /* 본문 첫 요소는 위 여백을 접는다 */
+  > :first-child {
+    margin-top: 0;
   }
 }
 
-/* backdrop-filter 미지원 브라우저 폴백: 그냥 살짝 불투명 흰 배경 */
+/* 포스트/페이지 제목 — 페이지에서 가장 먼저 읽혀야 하는 요소 */
+.page__title {
+  font-size: 2.125em;
+  font-weight: 700;
+  /* 테마의 line-height:1 은 한글 제목이 두 줄로 넘어가면 줄이 겹쳐 보인다. */
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+  margin-bottom: var(--sp-3);
+}
+
+/* ==========================================================================
+   3. 본문 조판
+   ========================================================================== */
+
+.page__content {
+  /* 한 줄 폭 제한.
+     테마는 $large(1024px) 이상에서만 .page 폭을 좁히기 때문에
+     768~1023px 구간에서는 본문이 990px 까지 늘어나 한 줄 118자가 된다.
+     코드블록·표·이미지는 제외해서 넓게 쓰게 둔다. */
+  > p,
+  > ul,
+  > ol,
+  > dl,
+  > blockquote {
+    max-width: var(--measure);
+  }
+
+  > p {
+    margin: 0 0 var(--sp-5);
+    text-wrap: pretty;
+  }
+
+  > ul,
+  > ol {
+    margin-bottom: var(--sp-5);
+  }
+
+  li > ul,
+  li > ol {
+    margin-block: var(--sp-1);
+  }
+
+  li + li {
+    margin-top: var(--sp-1);
+  }
+
+  /* 본문 링크: 밑줄은 유지하되 글자에서 띄워 한글 받침과 겹치지 않게 */
+  > p a,
+  > ul a,
+  > ol a,
+  > blockquote a {
+    text-underline-offset: 0.2em;
+    text-decoration-thickness: 1px;
+    text-decoration-color: var(--c-link-faint);
+    transition: text-decoration-color 0.15s ease;
+
+    &:hover {
+      text-decoration-color: currentColor;
+    }
+  }
+
+  blockquote {
+    margin: var(--sp-6) 0;
+    padding-inline-start: var(--sp-5);
+    border-inline-start: 2px solid var(--c-rule);
+    color: var(--c-muted);
+    font-style: normal;   /* 한글 이탤릭은 합성 기울임이라 품질이 떨어진다 */
+  }
+
+  hr {
+    margin: var(--sp-8) 0;
+    max-width: var(--measure);
+    border: 0;
+    border-top: 1px solid var(--c-rule);
+  }
+
+  /* 이미지는 본문 폭을 넘어 넓게 */
+  img {
+    margin-block: var(--sp-5);
+    border-radius: 4px;
+  }
+}
+
+/* 코드 — 테마 기본 0.75em(17px 기준 12.75px)은 자바 코드에 너무 작다 */
+div.highlighter-rouge,
+figure.highlight {
+  margin-block: var(--sp-5);
+  font-size: 0.875em;
+  border-radius: 6px;
+}
+
+.page__content > p code,
+.page__content li code,
+.page__content td code {
+  padding: 0.15em 0.4em;
+  font-size: 0.875em;
+  border-radius: 3px;
+}
+
+/* ==========================================================================
+   4. 메타데이터
+   ==========================================================================
+   날짜·읽는 시간은 물러나야 하지만 읽히긴 해야 한다.
+   테마의 0.6em(9.6px)은 legibility floor 아래라, 크기는 올리고 색으로 죽인다. */
+
+/* .page__meta-readtime 은 .page__meta 안에 중첩된 span 이므로 여기에 넣으면
+   0.8em 이 두 번 곱해져 0.64em 이 된다. 부모에서 상속받게 둔다. */
+.page__meta,
+.list__item .page__meta,
+.archive__item-excerpt {
+  font-size: 0.8em;
+  color: var(--c-muted);
+  /* 날짜·소요시간 숫자가 항목마다 같은 폭으로 정렬되게 */
+  font-variant-numeric: tabular-nums;
+}
+
+.page__meta-readtime {
+  font-size: inherit;
+}
+
+.page__meta {
+  margin-top: 0;
+  letter-spacing: 0.01em;
+}
+
+/* ==========================================================================
+   5. 포스트 목록 (홈 / 아카이브)
+   ==========================================================================
+   테마에는 항목 사이 간격이 사실상 없어서(.archive__item-title 의 margin 뿐)
+   글 목록이 하나의 덩어리로 읽힌다. 항목 안은 붙이고, 항목 사이는 벌린다. */
+
+.archive__subtitle {
+  margin: var(--sp-8) 0 var(--sp-2);
+  padding-bottom: 0;
+  font-size: 0.8em;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--c-muted);
+  border-bottom: 0;
+}
+
+.entries-list {
+  .list__item {
+    padding-block: var(--sp-6);
+
+    + .list__item {
+      border-top: 1px solid var(--c-rule);
+    }
+  }
+
+  .archive__item-title {
+    margin: 0 0 var(--sp-1);
+    font-size: 1.2em;
+    font-weight: 600;
+    line-height: 1.4;
+    letter-spacing: -0.01em;
+    /* 테마의 overflow:hidden + text-overflow:ellipsis 는 긴 한글 제목을
+       한 줄로 잘라버린다. 두 줄까지 보여주고 그 다음에 자른다. */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+
+    a {
+      color: var(--c-text);
+      text-decoration: none;
+
+      &:hover {
+        color: var(--c-link);
+      }
+    }
+  }
+
+  .list__item .page__meta {
+    margin: 0 0 var(--sp-2);
+  }
+
+  .archive__item-excerpt {
+    margin: 0;
+    max-width: var(--measure);
+    line-height: 1.65;
+  }
+}
+
+/* ==========================================================================
+   카테고리 필터
+   ========================================================================== */
+
+.taxonomy-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  margin: var(--sp-6) 0 var(--sp-3);
+  max-width: var(--measure);
+}
+
+.taxonomy-filter__chip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--sp-1);
+  padding: var(--sp-1) var(--sp-3);
+  font-size: 0.8em;
+  font-weight: 500;
+  line-height: 1.6;
+  color: var(--c-muted);
+  text-decoration: none;
+  border: 1px solid var(--c-rule);
+  border-radius: 999px;
+  /* 색만 바꾼다 — 테두리 두께나 패딩이 바뀌면 칩 위치가 밀린다 */
+  transition: color 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
+
+  &:hover {
+    color: var(--c-text);
+    border-color: var(--c-muted);
+  }
+
+  /* 선택 상태. aria-current 를 그대로 스타일 훅으로 쓴다 —
+     보조기술이 읽는 상태와 눈에 보이는 상태가 어긋날 수 없다. */
+  &[aria-current] {
+    color: #{$background-color};
+    background: var(--c-text);
+    border-color: var(--c-text);
+  }
+}
+
+.taxonomy-filter__count {
+  font-size: 0.85em;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.65;
+}
+
+.taxonomy-filter__status {
+  margin: 0 0 var(--sp-5);
+  font-size: 0.8em;
+  color: var(--c-muted);
+  font-variant-numeric: tabular-nums;
+
+  /* JS 가 채우기 전에는 빈 문단이 자리만 차지하지 않게 */
+  &:empty {
+    display: none;
+  }
+}
+
+.taxonomy__section {
+  /* 필터로 숨길 때 다른 display 규칙에 지지 않도록 */
+  &[hidden] {
+    display: none;
+  }
+
+  .archive__subtitle {
+    display: flex;
+    align-items: baseline;
+    gap: var(--sp-2);
+    margin-top: var(--sp-7);
+  }
+}
+
+/* 페이지네이션 — 목록의 끝을 닫는 요소라 컬럼 가운데에 놓는다.
+   테마는 .pagination 을 float: inline-start, li 를 float 로 왼쪽에 붙인다.
+   li 의 margin-inline-start: -1px 는 버튼들 테두리를 1px 겹쳐 하나의 그룹처럼
+   보이게 하는 장치라 그대로 두고, 정렬만 flex 로 바꾼다(gap 을 주면 안 됨).
+   .pagination--pager(글 이전/다음)는 .page 안에 있어서 여기 걸리지 않는다. */
+.archive .pagination {
+  float: none;
+  margin-top: var(--sp-7);
+  padding-top: var(--sp-6);
+
+  ul {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  li {
+    float: none;
+  }
+}
+
+/* 아바타 마크업(author-profile.html)에 width/height 가 없어서, 이미지가 로드되는
+   순간 사이드바 높이가 바뀌며 아래 내용이 밀린다. aspect-ratio 로 자리를 미리 잡는다.
+   object-fit 은 정사각형이 아닌 이미지로 바꿨을 때 찌그러지지 않고 잘리게 하는 보험.
+   (원형 마스크와 max-width:110px 는 테마 _sidebar.scss 가 이미 처리한다) */
+.author__avatar img {
+  aspect-ratio: 1;
+  object-fit: cover;
+}
+
+/* 댓글 — 본문이 끝났다는 걸 분명히 하고 시작한다.
+   테마 기본은 12.75px + text-transform: uppercase 인데, 한글에는 uppercase 가
+   아무 효과가 없고 크기만 작다. '최근 포스트' 라벨과 같은 급으로 맞춘다. */
+.page__comments-title {
+  margin: 0 0 var(--sp-5);
+  padding-top: var(--sp-7);
+  font-size: 0.8em;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--c-muted);
+  text-transform: none;
+  border-top: 1px solid var(--c-rule);
+}
+
+/* giscus 는 iframe 으로 들어와서 안쪽은 건드릴 수 없다.
+   바깥 폭만 본문과 같은 폭으로 맞춘다. */
+#giscus-comments {
+  display: block;
+  max-width: var(--measure);
+  margin-bottom: var(--sp-6);
+}
+
+/* ==========================================================================
+   6. 페이지 뼈대
+   ========================================================================== */
+
+/* sticky 네비 바로 아래에 제목이 붙지 않게 */
+#main {
+  padding-top: var(--sp-5);
+}
+
+/* 테마는 .page(글)와 .archive(홈·목록) 둘 다에 padding-inline-end 를
+   200px($large)/300px($x-large) 로 '무조건' 건다. 오른쪽 목차(.sidebar__right)
+   자리로 예약해 둔 폭인데, 목차는 single.html 에서 page.toc 가 켜진 글에만
+   렌더링되므로 홈·아카이브·목차 없는 글에서는 그냥 빈 공간으로 남고
+   본문 컬럼이 646px 로 눌린다. 목차가 실제로 없을 때만 그 폭을 돌려준다.
+   :has() 미지원 브라우저는 이 규칙을 통째로 무시하고 기존 동작을 유지한다. */
+@include breakpoint($large) {
+  .page:not(:has(.sidebar__right)),
+  .archive:not(:has(.sidebar__right)) {
+    padding-inline-end: var(--sp-6);
+  }
+
+  /* 목차를 반납받은 페이지는 컨테이너가 1000px 을 넘어가서, 748px 짜리 본문
+     아래로 구분선만 길게 뻗는다. 그렇다고 폭만 줄이면 float: inline-end 때문에
+     남는 공간이 전부 사이드바 쪽으로 몰려 가운데가 텅 빈다.
+     그래서 폭을 직접 주지 않고 '사이드바 자리 + 거터'를 뺀 값으로 역산한다.
+     max() 는 하한선 — 화면이 좁아 거터를 다 못 주더라도 본문 폭(--measure)은
+     절대 침범하지 않게 한다. */
+  .archive:not(:has(.sidebar__right)) {
+    max-width: max(
+      calc(var(--measure) + var(--sp-6)),
+      calc(100% - #{$right-sidebar-width-narrow} - var(--sidebar-gap))
+    );
+  }
+}
+
+@include breakpoint($x-large) {
+  /* $x-large 부터는 사이드바 자리가 300px 로 넓어진다 */
+  .archive:not(:has(.sidebar__right)) {
+    max-width: max(
+      calc(var(--measure) + var(--sp-6)),
+      calc(100% - #{$right-sidebar-width} - var(--sidebar-gap))
+    );
+  }
+}
+
+/* 목차가 있는 글은 좌 사이드바 300 + 목차 300 을 빼고 나면 본문이 646px 밖에
+   안 남아서, 읽기 폭(--measure, 748px)보다 좁게 눌린다. 정작 글을 읽는 화면이
+   가장 좁아지는 셈이다. $x-large 이상에서 #main 상한을 올려 그 차이를 메운다.
+   (1400 - 좌우 패딩 34 - 사이드바 300 - 목차 300 = 766px ≥ --measure) */
+@include breakpoint($x-large) {
+  #main {
+    max-width: 1400px;
+  }
+}
+
+.page__inner-wrap .page__content {
+  margin-top: var(--sp-6);
+}
+
+/* $large 미만에서는 목차가 사이드바가 아니라 본문 위 블록으로 깔린다.
+   항목이 30개쯤 되는 글에서는 독자가 목차를 다 스크롤해야 본문에 닿는다.
+   Read 모드에서 읽기 경로를 막는 구조라, 높이를 제한하고 안에서 스크롤시킨다. */
+@media (max-width: #{$large - 1px}) {
+  .sidebar__right .toc .toc__menu {
+    max-height: 40vh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+}
+
+/* 목차는 본문의 부속물이므로 본문보다 한 단계 조용하게 */
+.toc {
+  .nav__title {
+    font-size: 0.8em;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+  }
+
+  .toc__menu a {
+    font-size: 0.8em;
+    line-height: 1.5;
+    padding: var(--sp-2) var(--sp-4);
+  }
+}
+
+/* ==========================================================================
+   7. 상단 네비게이션 바 글래스모피즘
+   ========================================================================== */
+
+/* 색을 하드코딩하지 않고 스킨 변수에서 파생시킨다.
+   _config.yml 의 minimal_mistakes_skin 을 dark 등으로 바꿔도 같이 따라간다. */
+$nav-glass-bg: rgba($background-color, 0.8);
+$nav-glass-blur: saturate(180%) blur(14px);
+
+.masthead {
+  position: sticky;
+  top: 0;
+  border-bottom: 1px solid var(--c-rule-soft);
+}
+
+.greedy-nav {
+  /* 불투명 $background-color 를 덮어써서 본문이 뒤로 흐릿하게 지나가게 함.
+     0.8 은 유리 느낌과 링크 가독성(뒤에 어두운 이미지가 와도 대비 유지)의 절충값. */
+  background: $nav-glass-bg;
+  -webkit-backdrop-filter: $nav-glass-blur;
+  backdrop-filter: $nav-glass-blur;
+
+  .site-title {
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  .visible-links a {
+    font-size: 0.85em;
+    font-weight: 500;
+  }
+
+  /* 하위 숨김 메뉴(더보기 드롭다운)도 유리 톤 유지하되 더 불투명하게 */
+  .hidden-links {
+    background: rgba($background-color, 0.94);
+    -webkit-backdrop-filter: $nav-glass-blur;
+    backdrop-filter: $nav-glass-blur;
+  }
+}
+
+/* backdrop-filter 미지원 브라우저 폴백: 거의 불투명한 배경 */
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .greedy-nav { background: rgba(255, 255, 255, 0.95); }
+  .greedy-nav { background: rgba($background-color, 0.97); }
+}
+
+/* ==========================================================================
+   8. 브라우저가 그리는 표면
+   ==========================================================================
+   선택 영역·포커스 링·캐럿은 손대지 않으면 브라우저 기본값으로 남는다.
+   테마의 ::selection 은 순수 검정 블록(#000)이라 팔레트 밖이다. */
+
+::selection {
+  background: var(--c-selection);
+  color: var(--c-text);
+}
+
+::-moz-selection {
+  background: var(--c-selection);
+  color: var(--c-text);
+}
+
+:focus-visible {
+  outline: 2px solid var(--c-link);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* 마우스 클릭에는 링을 띄우지 않되 키보드 포커스는 반드시 보이게 */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+html {
+  caret-color: var(--c-link);
+  accent-color: var(--c-link);
+}
+
+/* ==========================================================================
+   9. 모션 민감 사용자 대응
+   ========================================================================== */
+
+/* 테마 masthead/페이지에 intro 애니메이션이 걸려 있어서(_masthead.scss) 꺼준다. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
