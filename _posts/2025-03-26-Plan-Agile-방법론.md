@@ -3,6 +3,7 @@ title: "[Plan] Agile 방법론"
 date: 2025-03-26 00:00:00 +0900
 categories: [PM]
 tags: []
+published: false  # 중복 — 정리본은 2025-04-07-Agile-방법론.md
 ---
 
 [https://agilemanifesto.org/](https://agilemanifesto.org/)

@@ -1,8 +1,8 @@
 ---
 title: "AWS 계정 이전 시 RDS&KMS 키 관련 트러블슈팅"
 date: 2025-11-5 20:16:00 +0900
-categories: AWS
-tags: [AWS, Backend]
+categories: [AWS]
+tags: [AWS, RDS, KMS, 트러블슈팅]
 author: yoonji
 layout: single
 published: true

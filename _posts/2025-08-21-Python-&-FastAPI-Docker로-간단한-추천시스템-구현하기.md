@@ -2,7 +2,7 @@
 title: "[Python & FastAPI] Docker로 간단한 추천시스템 구현하기"
 date: 2025-08-21 00:00:00 +0900
 categories: [AI]
-tags: []
+tags: [Python, FastAPI, Docker, 추천시스템]
 ---
 
 #### 트러블슈팅 ; fastAPI 무한 로딩 이슈
@@ -53,4 +53,3 @@ pipenv run pytest tests/
 
 [https://sir.kr/g6_pythonista/129](https://sir.kr/g6_pythonista/129)
 
-- **도커** (하위 페이지)
