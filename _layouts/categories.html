@@ -2,6 +2,152 @@
 layout: archive
 ---
 
+{%- comment -%}
+  카테고리 아카이브.
+
+  JS 없음 : 칩이 그냥 #앵커 링크라 해당 섹션으로 스크롤된다 = 원래 테마 동작 그대로.
+  JS 있음 : 칩을 누르면 그 카테고리만 남기고 나머지 섹션을 숨긴다.
+            선택 상태는 ?cat= 로 URL 에 남아 새로고침·공유·뒤로가기가 모두 동작한다.
+
+  그래서 칩은 <button> 이 아니라 <a href="#slug"> 이다.
+  button 으로 만들면 JS 가 없을 때 아무 일도 일어나지 않는다.
+{%- endcomment -%}
+
 {{ content }}
 
-{% include posts-taxonomy.html taxonomies=site.categories %}
+{% assign cats = site.categories | sort %}
+
+{%- comment -%}
+  categories: 가 비어 있는 글은 site.categories 어디에도 안 들어가서
+  이 페이지에서 통째로 사라진다. '미분류'로 모아 마지막에 붙인다.
+  data-filter 는 URL(?cat=)에 들어가므로 한글 대신 ASCII 슬러그를 쓴다.
+{%- endcomment -%}
+{% assign uncategorized = site.posts | where_exp: "post", "post.categories.size == 0" %}
+
+{%- comment -%}
+  '전체' 칩 개수는 site.posts 크기가 아니라 실제로 이 페이지에 렌더링되는
+  글 수의 합이어야 한다. 한 글이 카테고리를 두 개 가지면 두 섹션에 나오므로
+  site.posts 크기와 어긋날 수 있다.
+{%- endcomment -%}
+{% assign shown_total = uncategorized | size %}
+{% for c in cats %}{% assign shown_total = shown_total | plus: c[1].size %}{% endfor %}
+
+<nav class="taxonomy-filter" aria-label="{{ site.data.ui-text[site.locale].categories_label | default: 'Categories' }}">
+  <a class="taxonomy-filter__chip" href="{{ page.url | relative_url }}" data-filter="*" aria-current="true">전체<span class="taxonomy-filter__count">{{ shown_total }}</span></a>
+  {%- for c in cats %}
+  <a class="taxonomy-filter__chip" href="#{{ c[0] | slugify }}" data-filter="{{ c[0] | slugify }}">{{ c[0] }}<span class="taxonomy-filter__count">{{ c[1] | size }}</span></a>
+  {%- endfor %}
+  {%- if uncategorized.size > 0 %}
+  <a class="taxonomy-filter__chip" href="#uncategorized" data-filter="uncategorized">미분류<span class="taxonomy-filter__count">{{ uncategorized | size }}</span></a>
+  {%- endif %}
+</nav>
+
+<p class="taxonomy-filter__status" role="status" aria-live="polite"></p>
+
+<div class="taxonomy-groups">
+  {% for c in cats %}
+    <section class="taxonomy__section" id="{{ c[0] | slugify }}" data-category="{{ c[0] | slugify }}">
+      <h2 class="archive__subtitle">{{ c[0] }}<span class="taxonomy-filter__count">{{ c[1] | size }}</span></h2>
+      <div class="entries-list">
+        {% for post in c[1] %}
+          {% include archive-single.html %}
+        {% endfor %}
+      </div>
+    </section>
+  {% endfor %}
+
+  {% if uncategorized.size > 0 %}
+    <section class="taxonomy__section" id="uncategorized" data-category="uncategorized">
+      <h2 class="archive__subtitle">미분류<span class="taxonomy-filter__count">{{ uncategorized | size }}</span></h2>
+      <div class="entries-list">
+        {% for post in uncategorized %}
+          {% include archive-single.html %}
+        {% endfor %}
+      </div>
+    </section>
+  {% endif %}
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  var nav = document.querySelector('.taxonomy-filter');
+  var status = document.querySelector('.taxonomy-filter__status');
+  if (!nav) { return; }
+
+  var chips = Array.prototype.slice.call(nav.querySelectorAll('.taxonomy-filter__chip'));
+  var sections = Array.prototype.slice.call(document.querySelectorAll('.taxonomy__section'));
+
+  function labelOf(filter) {
+    for (var i = 0; i < chips.length; i++) {
+      if (chips[i].getAttribute('data-filter') === filter) {
+        // 칩의 첫 자식 텍스트 노드 = 개수 span 을 뺀 이름
+        return chips[i].childNodes[0].textContent.trim();
+      }
+    }
+    return filter;
+  }
+
+  function apply(filter, push) {
+    var known = filter === '*';
+    for (var i = 0; i < sections.length && !known; i++) {
+      if (sections[i].getAttribute('data-category') === filter) { known = true; }
+    }
+    if (!known) { filter = '*'; }
+
+    var shown = 0;
+    sections.forEach(function (s) {
+      var match = filter === '*' || s.getAttribute('data-category') === filter;
+      s.hidden = !match;
+      if (match) { shown += s.querySelectorAll('.list__item').length; }
+    });
+
+    chips.forEach(function (c) {
+      if (c.getAttribute('data-filter') === filter) {
+        c.setAttribute('aria-current', 'true');
+      } else {
+        c.removeAttribute('aria-current');
+      }
+    });
+
+    if (status) {
+      status.textContent = filter === '*'
+        ? '전체 ' + shown + '개 글'
+        : labelOf(filter) + ' · ' + shown + '개 글';
+    }
+
+    if (push) {
+      var url = filter === '*'
+        ? location.pathname
+        : location.pathname + '?cat=' + encodeURIComponent(filter);
+      history.pushState({ cat: filter }, '', url);
+    }
+  }
+
+  function fromLocation() {
+    var m = location.search.match(/[?&]cat=([^&]*)/);
+    if (m) { return decodeURIComponent(m[1]); }
+    // ?cat= 이 없으면 #앵커를 필터로 해석 — 기존 앵커 링크도 필터로 이어진다
+    if (location.hash.length > 1) { return decodeURIComponent(location.hash.slice(1)); }
+    return '*';
+  }
+
+  nav.addEventListener('click', function (e) {
+    var chip = e.target;
+    while (chip && chip !== nav && !chip.classList.contains('taxonomy-filter__chip')) {
+      chip = chip.parentNode;
+    }
+    if (!chip || chip === nav) { return; }
+    e.preventDefault();
+    apply(chip.getAttribute('data-filter'), true);
+    nav.scrollIntoView({ block: 'nearest' });
+  });
+
+  window.addEventListener('popstate', function () {
+    apply(fromLocation(), false);
+  });
+
+  apply(fromLocation(), false);
+}());
+</script>
