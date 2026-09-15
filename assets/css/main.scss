@@ -549,20 +549,15 @@ figure.highlight {
      max() 는 하한선 — 화면이 좁아 거터를 다 못 주더라도 본문 폭(--measure)은
      절대 침범하지 않게 한다. */
   .archive:not(:has(.sidebar__right)) {
-    max-width: max(
-      calc(var(--measure) + var(--sp-6)),
-      calc(100% - #{$right-sidebar-width-narrow} - var(--sidebar-gap))
-    );
+    // ponytail: unquote로 감싸 legacy Ruby Sass 3.7이 max()를 자기 함수로 파싱하지 못하게 함
+    max-width: unquote("max(calc(var(--measure) + var(--sp-6)), calc(100% - #{$right-sidebar-width-narrow} - var(--sidebar-gap)))");
   }
 }
 
 @include breakpoint($x-large) {
   /* $x-large 부터는 사이드바 자리가 300px 로 넓어진다 */
   .archive:not(:has(.sidebar__right)) {
-    max-width: max(
-      calc(var(--measure) + var(--sp-6)),
-      calc(100% - #{$right-sidebar-width} - var(--sidebar-gap))
-    );
+    max-width: unquote("max(calc(var(--measure) + var(--sp-6)), calc(100% - #{$right-sidebar-width} - var(--sidebar-gap)))");
   }
 }
 
