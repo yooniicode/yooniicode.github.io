@@ -810,13 +810,7 @@ html {
 }
 
 .post-map__head .archive__subtitle {
-  margin-bottom: 0.25em;
-}
-
-.post-map__desc {
-  margin: 0 0 0.9em;
-  color: var(--c-muted);
-  font-size: 0.8em;
+  margin-bottom: 0.9em;
 }
 
 .post-map__stage {
@@ -825,8 +819,7 @@ html {
   border: 1px solid var(--c-rule);
   border-radius: 12px;
   overflow: hidden;
-  background:
-    radial-gradient(ellipse at 50% 40%, #fff 0%, #f6f8fa 70%, #eef1f4 100%);
+  background: #f6f7f9;
 
   @media (max-width: 599px) {
     height: 340px;

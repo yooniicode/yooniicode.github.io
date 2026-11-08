@@ -59,8 +59,8 @@ async function main() {
   const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 200);
   camera.position.set(0, 5, 27);
 
-  scene.add(new THREE.HemisphereLight(0xffffff, 0xd9dee6, 2.4));
-  const sun = new THREE.DirectionalLight(0xffffff, 1.4);
+  scene.add(new THREE.HemisphereLight(0xffffff, 0xe3e7ec, 2.6));
+  const sun = new THREE.DirectionalLight(0xffffff, 0.7);
   sun.position.set(6, 10, 8);
   scene.add(sun);
 
@@ -74,7 +74,7 @@ async function main() {
   // 점
   const dots = new THREE.InstancedMesh(
     new THREE.SphereGeometry(0.34, 24, 16),
-    new THREE.MeshStandardMaterial({ roughness: 0.4, metalness: 0.05 }),
+    new THREE.MeshLambertMaterial(), // 반사광 없이 확산광만 받아 무광으로 보인다
     posts.length,
   );
   scene.add(dots);
