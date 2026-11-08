@@ -800,3 +800,216 @@ html {
     scroll-behavior: auto !important;
   }
 }
+
+/* ==========================================================================
+   10. 홈 글 지도 (_includes/post-map.html, assets/js/post-map.js)
+   ========================================================================== */
+
+.post-map {
+  margin-bottom: 2.5em;
+}
+
+.post-map__head .archive__subtitle {
+  margin-bottom: 0.25em;
+}
+
+.post-map__desc {
+  margin: 0 0 0.9em;
+  color: var(--c-muted);
+  font-size: 0.8em;
+}
+
+.post-map__stage {
+  position: relative;
+  height: 440px;
+  border: 1px solid var(--c-rule);
+  border-radius: 12px;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at 50% 40%, #fff 0%, #f6f8fa 70%, #eef1f4 100%);
+
+  @media (max-width: 599px) {
+    height: 340px;
+  }
+}
+
+.post-map__canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+
+  .post-map.is-ready & {
+    opacity: 1;
+  }
+}
+
+.post-map__hint {
+  position: absolute;
+  left: 12px;
+  bottom: 10px;
+  margin: 0;
+  color: var(--c-muted);
+  font-size: 0.68em;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+
+  &.is-hidden {
+    opacity: 0;
+  }
+}
+
+.post-map__tip {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: min(280px, calc(100% - 16px));
+  padding: 0.8em 0.9em;
+  border: 1px solid var(--c-rule);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 6px 24px rgba(15, 23, 42, 0.12);
+  font-size: 0.72em;
+  line-height: 1.5;
+  pointer-events: none;
+
+  &.is-pinned {
+    pointer-events: auto;
+  }
+
+  a {
+    color: var(--c-text);
+    text-decoration: none;
+  }
+}
+
+.post-map__tip-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  margin-bottom: 0.35em;
+}
+
+.post-map__chip {
+  padding: 0.05em 0.55em;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--c) 14%, #fff);
+  color: var(--c);
+  font-weight: 600;
+}
+
+.post-map__date,
+.post-map__score,
+.post-map__near-label {
+  color: var(--c-muted);
+}
+
+.post-map__tip-title {
+  display: block;
+  font-size: 1.12em;
+  line-height: 1.4;
+}
+
+.post-map__tip-excerpt {
+  margin: 0.4em 0 0;
+  color: var(--c-muted);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.post-map__near-label {
+  margin-top: 0.7em;
+  font-size: 0.92em;
+}
+
+.post-map__near {
+  margin: 0.2em 0 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: flex;
+    align-items: baseline;
+    margin: 0;
+  }
+
+  a {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .is-pinned & a {
+    text-decoration: underline;
+    text-decoration-color: var(--c-rule);
+  }
+}
+
+.post-map__score {
+  margin-left: 0.4em;
+  font-variant-numeric: tabular-nums;
+}
+
+.post-map__go {
+  display: inline-block;
+  margin-top: 0.7em;
+  font-weight: 600;
+
+  .post-map__tip & {
+    color: var(--c-link);
+  }
+}
+
+.post-map__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4em;
+  margin: 0.8em 0 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    margin: 0;
+  }
+}
+
+.post-map__legend-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  padding: 0.25em 0.7em;
+  border: 1px solid var(--c-rule);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--c-text);
+  font: inherit;
+  font-size: 0.72em;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+
+  &:hover {
+    border-color: var(--c);
+  }
+
+  &[aria-pressed="true"] {
+    border-color: var(--c);
+    background: color-mix(in srgb, var(--c) 12%, #fff);
+  }
+}
+
+.post-map__dot {
+  width: 0.6em;
+  height: 0.6em;
+  border-radius: 50%;
+  background: var(--c);
+}
+
+.post-map__count {
+  color: var(--c-muted);
+  font-variant-numeric: tabular-nums;
+}

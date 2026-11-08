@@ -181,6 +181,8 @@ exclude:
   - Gemfile.lock
   - LICENSE
   - README.md
+  - scripts                # 임베딩 지도 생성 스크립트(로컬 전용)
+  - .cache
 keep_files:
   - .git
   - .svn

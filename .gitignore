@@ -33,3 +33,8 @@ _site
 
 # Claude Code (세션마다 쌓이는 로컬 권한 설정, 이 PC 전용 절대경로 포함)
 .claude/
+
+# 임베딩 지도 생성용 로컬 환경과 캐시
+scripts/embedding_map/.venv/
+.cache/
+__pycache__/

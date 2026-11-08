@@ -1,0 +1,36 @@
+---
+layout: null
+permalink: /post-map.json
+sitemap: false
+---
+{%- comment -%}
+  홈 글 지도(assets/js/post-map.js)가 읽는 데이터.
+  좌표와 이웃은 scripts/embedding_map 이 만든 _data/post_map.json 에서 오고
+  URL, 제목, 요약은 여기서 Jekyll 이 붙인다. 지도에 없는 새 글은 건너뛴다.
+{%- endcomment -%}
+{%- assign map = site.data.post_map -%}
+{%- assign items = "" | split: "" -%}
+{%- for post in site.posts -%}
+  {%- assign key = post.path | split: "/" | last -%}
+  {%- assign m = map[key] -%}
+  {%- if m -%}
+    {%- assign items = items | push: post -%}
+  {%- endif -%}
+{%- endfor -%}
+[
+{%- for post in items -%}
+  {%- assign key = post.path | split: "/" | last -%}
+  {%- assign m = map[key] -%}
+  {%- assign excerpt = post.excerpt | strip_html | strip_newlines | normalize_whitespace | truncate: 140 -%}
+  {
+    "key": {{ key | jsonify }},
+    "url": {{ post.url | relative_url | jsonify }},
+    "title": {{ post.title | jsonify }},
+    "date": {{ post.date | date: "%Y.%m.%d" | jsonify }},
+    "category": {{ post.categories | first | default: "Etc" | jsonify }},
+    "excerpt": {{ excerpt | jsonify }},
+    "pos": {{ m.pos | jsonify }},
+    "neighbors": {{ m.neighbors | jsonify }}
+  }{% unless forloop.last %},{% endunless %}
+{%- endfor -%}
+]

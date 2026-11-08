@@ -1,0 +1,24 @@
+{%- comment -%}
+  홈 상단 글 지도. 데이터는 /post-map.json, 그리는 코드는 assets/js/post-map.js.
+  WebGL 이 없거나 데이터를 못 받으면 스크립트가 섹션을 통째로 숨긴다.
+{%- endcomment -%}
+<section class="post-map" id="post-map" aria-labelledby="post-map-title"
+         data-src="{{ '/post-map.json' | relative_url }}">
+  <div class="post-map__head">
+    <h2 class="archive__subtitle" id="post-map-title">글 지도</h2>
+    <p class="post-map__desc">전체 글을 임베딩해서 3D 공간에 펼쳤습니다. 가까운 점일수록 내용이 비슷한 글입니다.</p>
+  </div>
+  <div class="post-map__stage">
+    <canvas class="post-map__canvas" aria-label="글 임베딩 3D 지도"></canvas>
+    <div class="post-map__tip" hidden></div>
+    <p class="post-map__hint">드래그로 돌리고 점에 마우스를 올려 보세요</p>
+  </div>
+  <ul class="post-map__legend" aria-label="카테고리 필터"></ul>
+</section>
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+<script type="module" src="{{ '/assets/js/post-map.js' | relative_url }}"></script>

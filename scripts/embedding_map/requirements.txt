@@ -1,0 +1,6 @@
+torch
+sentence-transformers
+umap-learn
+scikit-learn
+python-frontmatter
+numpy
