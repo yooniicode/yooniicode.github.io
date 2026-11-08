@@ -3,7 +3,6 @@ title: "Storage, CloudFront 실습 회고"
 date: 2026-04-07 12:24:00 +0900
 categories: [AWS]
 tags: [AWS, AWS Cloud Club, S3, CloudFront]
-author: yoonji
 layout: single
 published: true
 ---

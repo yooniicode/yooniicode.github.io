@@ -26,7 +26,16 @@
 {%- endif -%}
 
 {%- assign page_large_image = page.header.og_image | default: page.header.overlay_image | default: page.header.image | absolute_url | escape -%}
-{%- assign page_teaser_image = page.header.teaser | default: site.og_image | absolute_url | escape -%}
+{%- comment -%}
+  header.teaser 가 없으면 본문 첫 이미지를 링크 미리보기에 쓴다.
+  카카오톡/슬랙 등은 SVG 미리보기를 못 그려서 SVG 는 건너뛰고 사이트 기본 이미지로 둔다.
+{%- endcomment -%}
+{%- assign page_teaser_image = page.header.teaser -%}
+{%- if page.date and page_teaser_image == nil -%}
+  {%- include post-teaser.html doc=page -%}
+  {%- unless teaser_url contains '.svg' -%}{%- assign page_teaser_image = teaser_url -%}{%- endunless -%}
+{%- endif -%}
+{%- assign page_teaser_image = page_teaser_image | default: site.og_image | absolute_url | escape -%}
 {%- assign site_og_image = site.og_image | absolute_url | escape -%}
 
 {%- if page.date -%}

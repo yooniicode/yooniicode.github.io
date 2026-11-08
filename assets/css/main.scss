@@ -394,6 +394,61 @@ figure.highlight {
     max-width: var(--measure);
     line-height: 1.65;
   }
+
+  /* 본문에 이미지가 있는 글만 오른쪽에 썸네일을 둔다(_includes/post-teaser.html).
+     썸네일이 없는 글은 grid 를 쓰지 않아서 기존 모양 그대로다. */
+  .archive__item:has(.archive__item-thumb) {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    column-gap: var(--sp-5);
+    align-items: start;
+
+    > * {
+      grid-column: 1;
+    }
+
+    /* 위 > * 보다 선택자 점수가 높아야 오른쪽 칸으로 간다 */
+    > .archive__item-thumb {
+      grid-column: 2;
+      grid-row: 1 / span 3;
+    }
+  }
+
+  .archive__item-thumb {
+    display: block;
+    width: 8.5rem;
+    aspect-ratio: 4 / 3;
+    margin-top: var(--sp-1);
+    overflow: hidden;
+    border: 1px solid var(--c-rule);
+    border-radius: 6px;
+    background: #fff;
+
+    /* 스크린샷 같은 사진은 꽉 채우고 위쪽을 보여준다(세로로 긴 모바일 캡처 대비) */
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: top;
+    }
+
+    /* 다이어그램(SVG)은 잘리면 알아볼 수 없어서 전체가 보이게 둔다 */
+    img[src$=".svg"] {
+      object-fit: contain;
+      object-position: center;
+      padding: var(--sp-1);
+    }
+  }
+
+  @media (max-width: 37.5em) {
+    .archive__item:has(.archive__item-thumb) {
+      column-gap: var(--sp-3);
+    }
+
+    .archive__item-thumb {
+      width: 5.5rem;
+    }
+  }
 }
 
 /* ==========================================================================
@@ -596,6 +651,41 @@ figure.highlight {
     .toc .toc__menu {
       max-height: calc(100vh - 9rem);
     }
+  }
+}
+
+/* 목차를 감싼 details/summary. 기본 삼각형 표시는 지우고
+   $large 미만에서만 오른쪽에 펼침 화살표를 그린다. 넓은 화면은 항상 펼쳐진 사이드바다. */
+.toc__summary {
+  display: block;
+  list-style: none;
+
+  &::-webkit-details-marker {
+    display: none;
+  }
+}
+
+@media (max-width: #{$large - 1px}) {
+  .toc__summary {
+    position: relative;
+    cursor: pointer;
+
+    &::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      right: var(--sp-4);
+      width: 0.45em;
+      height: 0.45em;
+      border-right: 1.5px solid currentColor;
+      border-bottom: 1.5px solid currentColor;
+      transform: translateY(-70%) rotate(45deg);
+      transition: transform 0.15s ease;
+    }
+  }
+
+  .toc__details[open] > .toc__summary::after {
+    transform: translateY(-30%) rotate(-135deg);
   }
 }
 

@@ -43,8 +43,27 @@ layout: default
         {% if page.toc %}
           <aside class="sidebar__right {% if page.toc_sticky %}sticky{% endif %}">
             <nav class="toc">
-              <header><h2 class="nav__title"><i class="fas fa-{{ page.toc_icon | default: 'file-alt' }}"></i> {{ page.toc_label | default: site.data.ui-text[site.locale].toc_label | default: "On this page" }}</h2></header>
-              {% include toc.html sanitize=true html=content h_min=1 h_max=6 class="toc__menu" skip_no_ids=true %}
+              {% comment %}
+                $large 미만에서는 목차가 본문 위에 깔려서 처음엔 접어 둔다.
+                details 는 기본으로 열어 두고(JS 가 꺼져 있어도 목차가 보이게),
+                아래 스크립트가 화면 폭을 보고 open 을 켜고 끈다.
+                theme 의 _main.js 가 nav.toc header 를 찾으므로 header 는 유지한다.
+              {% endcomment %}
+              <details class="toc__details" open>
+                <summary class="toc__summary"><header><h2 class="nav__title"><i class="fas fa-{{ page.toc_icon | default: 'file-alt' }}"></i> {{ page.toc_label | default: site.data.ui-text[site.locale].toc_label | default: "On this page" }}</h2></header></summary>
+                {% include toc.html sanitize=true html=content h_min=1 h_max=6 class="toc__menu" skip_no_ids=true %}
+              </details>
+              <script>
+                (function () {
+                  var d = document.currentScript.previousElementSibling;
+                  var mq = window.matchMedia("(min-width: 1024px)");
+                  function sync() { d.open = mq.matches; }
+                  sync();
+                  if (mq.addEventListener) mq.addEventListener("change", sync); else mq.addListener(sync);
+                  /* 넓은 화면에서는 사이드바라 접을 이유가 없다 */
+                  d.querySelector("summary").addEventListener("click", function (e) { if (mq.matches) e.preventDefault(); });
+                })();
+              </script>
             </nav>
           </aside>
         {% endif %}

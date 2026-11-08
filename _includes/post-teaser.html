@@ -1,0 +1,8 @@
+{% comment %}
+  글의 대표 이미지를 teaser_url 에 담는다.
+  1. front matter 의 header.teaser 가 있으면 그걸 쓴다.
+  2. 없으면 렌더된 본문(content)에서 첫 번째 <img src="..."> 를 꺼낸다.
+     본문 src 는 이미 relative_url 이 적용된 값이라 다시 붙이지 않는다.
+  아직 렌더 전인 본문은 src 가 Liquid 태그 그대로라서 '/' 나 'http' 로 시작할 때만 인정한다.
+  사용: include post-teaser.html doc=post 를 부른 뒤 teaser_url 을 읽는다.
+{% endcomment %}{% assign teaser_url = nil %}{% if include.doc.header.teaser %}{% assign teaser_url = include.doc.header.teaser | relative_url %}{% else %}{% assign _imgs = include.doc.content | split: '<img src="' %}{% if _imgs.size > 1 %}{% assign _src = _imgs[1] | split: '"' | first %}{% assign _head1 = _src | slice: 0, 1 %}{% assign _head4 = _src | slice: 0, 4 %}{% if _head1 == '/' or _head4 == 'http' %}{% assign teaser_url = _src %}{% endif %}{% endif %}{% endif %}
