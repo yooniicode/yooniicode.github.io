@@ -586,9 +586,26 @@ figure.highlight {
   }
 }
 
+/* 테마는 sticky 목차를 top: 2em 에 붙이는데 상단 네비도 sticky 라
+   스크롤하면 목차 윗부분이 네비 뒤로 숨는다. 네비 높이(4.5rem)만큼 내리고
+   목록 최대 높이도 그만큼 줄여 박스 아래가 화면 밖으로 나가지 않게 한다. */
+@include breakpoint($large) {
+  .sidebar__right.sticky {
+    top: 4.5rem;
+
+    .toc .toc__menu {
+      max-height: calc(100vh - 9rem);
+    }
+  }
+}
+
 /* 목차는 본문의 부속물이므로 본문보다 한 단계 조용하게 */
 .toc {
+  /* 목차 제목은 <h2 class="nav__title"> 이라 위의 .page__content h2 규칙(0,1,1)이
+     테마의 .nav__title { margin: 0 }(0,1,0)을 이긴다. 그러면 위 3rem, 아래 1rem
+     여백이 박스 안에 생겨 제목 위에 빈 칸이 뜬다. 여기서 다시 0으로 돌린다. */
   .nav__title {
+    margin: 0;
     font-size: 0.8em;
     font-weight: 600;
     letter-spacing: 0.04em;
