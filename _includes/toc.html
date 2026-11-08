@@ -80,6 +80,7 @@
     {% assign firstHeader = true %}
     {% assign currLevel = 0 %}
     {% assign lastLevel = 0 %}
+    {% assign openLevels = "" | split: "," %}
 
     {% capture listModifier %}{% if orderedList %}ol{% else %}ul{% endif %}{% endcapture %}
 
@@ -140,16 +141,36 @@
             {% capture listItem %}{{ anchorBody }}{% endcapture %}
         {% endif %}
 
-        {% if currLevel > lastLevel and flatToc == false %}
+        {% comment %}
+            원본 jekyll-toc 는 내려갈 때는 단계 차이와 상관없이 목록을 1개만 열고
+            올라올 때는 (lastLevel - currLevel)개를 닫는다. # 다음에 ### 처럼
+            단계를 건너뛰면 닫는 수가 여는 수보다 많아져서, 그 뒤 항목이
+            .toc__menu 밖으로 튀어나간다. 실제로 연 목록의 단계를 openLevels 에
+            쌓아 두고 그만큼만 닫는다.
+        {% endcomment %}
+        {% if flatToc == false %}
+            {% if openLevels.size == 0 %}
+                {% capture jekyll_toc %}{{ jekyll_toc }}<{{ listModifier }}{{ subMenuClass }}>{% endcapture %}
+                {% assign openLevels = openLevels | push: currLevel %}
+            {% else %}
+                {% for i in (1..6) %}
+                    {% if openLevels.size > 1 and openLevels.last > currLevel %}
+                        {% capture jekyll_toc %}{{ jekyll_toc }}</li></{{ listModifier }}>{% endcapture %}
+                        {% assign openLevels = openLevels | pop %}
+                    {% else %}
+                        {% break %}
+                    {% endif %}
+                {% endfor %}
+
+                {% if openLevels.last < currLevel %}
+                    {% capture jekyll_toc %}{{ jekyll_toc }}<{{ listModifier }}{{ subMenuClass }}>{% endcapture %}
+                    {% assign openLevels = openLevels | push: currLevel %}
+                {% else %}
+                    {% capture jekyll_toc %}{{ jekyll_toc }}</li>{% endcapture %}
+                {% endif %}
+            {% endif %}
+        {% elsif currLevel > lastLevel %}
             {% capture jekyll_toc %}{{ jekyll_toc }}<{{ listModifier }}{{ subMenuClass }}>{% endcapture %}
-        {% elsif currLevel < lastLevel and flatToc == false %}
-            {% assign repeatCount = lastLevel | minus: currLevel %}
-
-            {% for i in (1..repeatCount) %}
-                {% capture jekyll_toc %}{{ jekyll_toc }}</li></{{ listModifier }}>{% endcapture %}
-            {% endfor %}
-
-            {% capture jekyll_toc %}{{ jekyll_toc }}</li>{% endcapture %}
         {% else %}
             {% capture jekyll_toc %}{{ jekyll_toc }}</li>{% endcapture %}
         {% endif %}
@@ -163,8 +184,7 @@
     {% if flatToc == true %}
         {% assign repeatCount = 1 %}
     {% else %}
-        {% assign repeatCount = minHeader | minus: 1 %}
-        {% assign repeatCount = lastLevel | minus: repeatCount %}
+        {% assign repeatCount = openLevels.size %}
     {% endif %}
 
     {% for i in (1..repeatCount) %}
